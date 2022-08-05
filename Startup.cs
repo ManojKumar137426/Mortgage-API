@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Mortgage_API.Data;
+using Microsoft.EntityFrameworkCore;
+using Mortgage_API.Services.LoanServices;
 
 namespace Mortgage_API
 {
@@ -27,6 +30,10 @@ namespace Mortgage_API
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddDbContext<DataContext>(options=>{
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+            });
+            services.AddScoped<ILoanService,LoanService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
