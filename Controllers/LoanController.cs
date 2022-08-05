@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Mortgage_API.Dtos.Loan;
 using Mortgage_API.Model;
 using Mortgage_API.Services.LoanServices;
 
@@ -23,20 +24,26 @@ namespace Mortgage_API.Controllers
 
 
         [HttpGet("GetALL")]
-        public ActionResult<List<Loan>> GetAll()
+        public ActionResult<List<GetLoanDTO>> GetAll()
         {
             return Ok(_loanService.GetAllLoans());
         }
         [HttpGet("{id}")]
-        public ActionResult<Loan> GetById(int id)
+        public ActionResult<GetLoanDTO> GetById(int id)
         {            
             return Ok(_loanService.GetLoanById(id));
         }
 
         [HttpPost]
-        public ActionResult<List<Loan>> AddLoan(Loan obj)
+        public ActionResult<List<GetLoanDTO>> AddLoan(AddLoanDTO obj)
         {
             return Ok(_loanService.AddLoan(obj));
+        }
+
+        [HttpPut]
+        public ActionResult<GetLoanDTO> UpdateLoan(UpdateLoanDTO obj)
+        {
+            return Ok(_loanService.UpdateLoan(obj));
         }
     }
 }

@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using Mortgage_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Mortgage_API.Services.LoanServices;
+using AutoMapper;
 
 namespace Mortgage_API
 {
@@ -39,6 +40,7 @@ namespace Mortgage_API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mortgage_API", Version = "v1" });
             });
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
