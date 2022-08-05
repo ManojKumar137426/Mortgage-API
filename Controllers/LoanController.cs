@@ -45,5 +45,11 @@ namespace Mortgage_API.Controllers
         {
             return Ok(_loanService.UpdateLoan(obj));
         }
+
+        [HttpDelete("{Id}")]
+        public ActionResult<List<GetLoanDTO>> DeleteLoan(int Id)
+        {
+            return Ok(_loanService.DeleteLoan(Id));
+        }
     }
 }

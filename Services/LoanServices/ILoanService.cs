@@ -15,6 +15,8 @@ namespace Mortgage_API.Services.LoanServices
         ServiceResponse<List<GetLoanDTO>> AddLoan(AddLoanDTO objLoan);
 
         ServiceResponse<GetLoanDTO> UpdateLoan(UpdateLoanDTO objLoan);
+
+        ServiceResponse<List<GetLoanDTO>> DeleteLoan(int Id);
         
     }
 }

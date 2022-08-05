@@ -52,7 +52,7 @@ namespace Mortgage_API.Services.LoanServices
         public ServiceResponse<GetLoanDTO> UpdateLoan(UpdateLoanDTO objLoan)
         {
             var loan = _dbContext.Loans.FirstOrDefault(loan=>loan.Id == objLoan.Id);
-            ServiceResponse<GetLoanDTO> response = new ServiceResponse<GetLoanDTO>();
+            var response = new ServiceResponse<GetLoanDTO>();
             if(loan != null)
             {
                 loan.FirstName = objLoan.FirstName;
@@ -67,6 +67,21 @@ namespace Mortgage_API.Services.LoanServices
             response.Data =  _mapper.Map<GetLoanDTO>(loan);
             response.Message = "";
             response.Success = true;
+            return response;
+        }
+
+        public ServiceResponse<List<GetLoanDTO>> DeleteLoan(int Id)
+        {
+            var response = new ServiceResponse<List<GetLoanDTO>>();
+            var loan = _dbContext.Loans.FirstOrDefault(loan=>loan.Id == Id);
+            if(loan != null)
+            {
+                _dbContext.Loans.Remove(loan);
+                _dbContext.SaveChanges();
+                response.Data = _dbContext.Loans.Select(loan=>_mapper.Map<GetLoanDTO>(loan)).ToList();
+                response.Message = "Deleted Successfully";
+                response.Success = true;
+            }
             return response;
         }
     }

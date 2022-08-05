@@ -34,6 +34,16 @@ namespace Mortgage_API
             services.AddDbContext<DataContext>(options=>{
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
+            services.AddCors(options =>
+            {
+                
+                options.AddDefaultPolicy(
+                        
+                        builder => builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+            
             services.AddScoped<ILoanService,LoanService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -58,7 +68,7 @@ namespace Mortgage_API
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseCors();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
