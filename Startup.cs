@@ -45,6 +45,7 @@ namespace Mortgage_API
             });
             
             services.AddScoped<ILoanService,LoanService>();
+            services.AddScoped<IAuthRepository,AuthRepository>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

@@ -18,5 +18,7 @@ namespace Mortgage_API.Data
 
         public DbSet<Loan> Loans { get ; set; }
 
+        public DbSet<User> User { get ; set; }
+
     }
 }
