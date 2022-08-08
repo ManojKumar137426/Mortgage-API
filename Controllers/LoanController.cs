@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mortgage_API.Dtos.Loan;
 using Mortgage_API.Model;
@@ -11,9 +12,9 @@ namespace Mortgage_API.Controllers
 {
     [ApiController]
     [Route("Loan")]
+    
     public class LoanController: ControllerBase
-    {
-        private static Loan obj = new Loan();
+    {        
         
         private readonly ILoanService _loanService;
         public LoanController(ILoanService loanService)
@@ -23,7 +24,7 @@ namespace Mortgage_API.Controllers
         }
 
 
-        [HttpGet("GetALL")]
+        [HttpGet("GetALL")]        
         public ActionResult<List<GetLoanDTO>> GetAll()
         {
             return Ok(_loanService.GetAllLoans());

@@ -14,7 +14,9 @@ using Microsoft.OpenApi.Models;
 using Mortgage_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Mortgage_API.Services.LoanServices;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using AutoMapper;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Mortgage_API
 {
@@ -45,7 +47,27 @@ namespace Mortgage_API
             });
             
             services.AddScoped<ILoanService,LoanService>();
-            services.AddScoped<IAuthRepository,AuthRepository>();
+            services.AddScoped<IAuthRepository,AuthRepository>();    
+            string secret = Configuration.GetSection("AppSettings:Secret").Value;
+
+            var key = System.Text.Encoding.ASCII.GetBytes("secret");        
+            services.AddAuthentication( x=>
+                {
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(x=>
+                {
+                    x.RequireHttpsMetadata = false;
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -67,9 +89,10 @@ namespace Mortgage_API
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

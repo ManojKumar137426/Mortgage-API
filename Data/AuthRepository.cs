@@ -1,7 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Mortgage_API.Model;
 
 namespace Mortgage_API.Data
@@ -9,18 +14,20 @@ namespace Mortgage_API.Data
     public class AuthRepository : IAuthRepository
     {
         public DataContext _context;
-        public AuthRepository(DataContext context)
+        public IConfiguration _config;
+        public AuthRepository(DataContext context,IConfiguration config)
         {
             this._context = context;
+            _config = config;
             
         }
-        public bool IsUserExist(string userName)
-        {
-            var user = _context.User.Select(a=>a.UserName == userName);
-            if(user != null){
-                return false;
+        public async Task<bool> IsUserExist(string userName)
+        {            
+            if(await _context.User.AnyAsync(a=>a.UserName == userName))
+            {                
+                return true;
             }
-            return true;
+            return false;
             
         }
 
@@ -36,7 +43,7 @@ namespace Mortgage_API.Data
             else if(VerifyPasswordHash(password, user.PasswordHash,user.PasswordSalt))
             {
                 response.Success = true;
-                response.Data = user.UserName;
+                response.Data = CreateToken(user);
                 response.Message = "Login Success";
             }
             else
@@ -58,20 +65,32 @@ namespace Mortgage_API.Data
             }
         }
 
-        public ServiceResponse<int> Register(User user, string password)
+        public async Task<ServiceResponse<int>> Register(User user, string password)
         {
-            ServiceResponse<int> response = new ServiceResponse<int>();
-            if(IsUserExist(user.UserName)){
-                response.Message = "User already Exists";
-                response.Success = false;
-                return response;
+            var response = new ServiceResponse<int>();
+            try
+            {
+                if(await IsUserExist(user.UserName)){
+                    response.Message = "User already Exists " + user.UserName;
+                    response.Success = false;
+                    return response;
+                }
+                CreatePasswordHash(password,out byte[] passwordHash,out byte[] passwordSalt);
+                user.PasswordHash = passwordHash;
+                user.PasswordSalt = passwordSalt;
+                _context.User.Add(user);
+                await _context.SaveChangesAsync();
+                response.Data = user.Id;
+                response.Success = true;
+                response.Message = "User Created Successfully";
             }
-            CreatePasswordHash(password,out byte[] passwordHash,out byte[] passwordSalt);
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
-            _context.User.Add(user);
-            _context.SaveChanges();
-            response.Data = user.Id;
+            catch(Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Success = false;
+                
+            }
+            
             return response;
             
         }
@@ -93,5 +112,24 @@ namespace Mortgage_API.Data
             }
         }
 
+        private string CreateToken(User user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
+                new Claim(ClaimTypes.Name,user.UserName)
+            };
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
+            var creds = new SigningCredentials(key,SecurityAlgorithms.HmacSha512Signature);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = creds
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
     }
 }

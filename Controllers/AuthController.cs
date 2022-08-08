@@ -20,18 +20,14 @@ namespace Mortgage_API.Controllers
         }
 
         [HttpPost("Register")]
-        public ActionResult<ServiceResponse<int>> Register(UserRegisterDTO request)
+        public async Task<ActionResult<ServiceResponse<int>>> Register(UserRegisterDTO request)
         {
-            var response = _authRepo.Register(new User{UserName=request.UserName},request.PassWord);
-            if(response.Success)
-            {
-                return Ok(response);
-            }
-            return BadRequest(response);
+            return Ok(await _authRepo.Register(new User{UserName=request.UserName},request.PassWord));
+            
         }
 
         [HttpPost("Login")]
-        public ActionResult<ServiceResponse<int>> Login(UserLoginDTO request)
+        public ActionResult<ServiceResponse<string>> Login(UserLoginDTO request)
         {
             var response = _authRepo.Login(request.UserName,request.PassWord);
 

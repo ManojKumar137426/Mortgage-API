@@ -8,9 +8,9 @@ namespace Mortgage_API.Data
 {
     public interface IAuthRepository
     {
-        public ServiceResponse<int> Register(User user,string password);
+        public Task<ServiceResponse<int>> Register(User user,string password);
         public ServiceResponse<string> Login(string userName,string password);
-        public bool IsUserExist(string userName);
+        public Task<bool> IsUserExist(string userName);
         
     }
 }
