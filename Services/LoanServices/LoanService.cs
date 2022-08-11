@@ -44,6 +44,12 @@ namespace Mortgage_API.Services.LoanServices
         {
             var response = new ServiceResponse<GetLoanDTO>();
             response.Data = _mapper.Map<GetLoanDTO>(_dbContext.Loans.FirstOrDefault(a=>a.Id == Id));
+            if(response.Data == null)
+            {
+                response.Message = "Not Found";
+                response.Success = false;
+                return response;
+            }
             response.Message = "";
             response.Success = true;
             return response;

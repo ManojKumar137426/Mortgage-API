@@ -31,8 +31,14 @@ namespace Mortgage_API.Controllers
         }
         [HttpGet("{id}")]
         public ActionResult<GetLoanDTO> GetById(int id)
-        {            
-            return Ok(_loanService.GetLoanById(id));
+        {
+            var response = _loanService.GetLoanById(id);
+
+            if (response.Success)
+            {
+                return Ok(response.Data);
+            }                        
+            return NotFound();
         }
 
         [HttpPost]
